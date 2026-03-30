@@ -1,0 +1,211 @@
+{
+  "name": "openspec-vscode-extension",
+  "displayName": "OpenSpec Workspace",
+  "description": "VS Code extension for OpenSpec spec-driven development workflow",
+  "version": "0.1.0",
+  "publisher": "oioi555",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oioi555/openspec-vscode-extension.git"
+  },
+  "homepage": "https://github.com/oioi555/openspec-vscode-extension#readme",
+  "bugs": {
+    "url": "https://github.com/oioi555/openspec-vscode-extension/issues"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "openspecWorkspace",
+          "title": "OpenSpec Workspace",
+          "icon": "media/sidebar-icon.png"
+        }
+      ]
+    },
+    "views": {
+      "openspecWorkspace": [
+        {
+          "id": "openspecWorkspaceExplorer",
+          "name": "OpenSpec Explorer",
+          "when": "openspecWorkspace:initialized",
+          "icon": "media/sidebar-icon.png"
+        },
+        {
+          "id": "openspecWorkspaceWelcome",
+          "name": "OpenSpec Workspace",
+          "when": "!openspecWorkspace:initialized",
+          "icon": "media/icon.png"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "openspecWorkspaceWelcome",
+        "contents": "OpenSpec workspace not detected\n[Initialize OpenSpec](command:openspecWorkspace.init)\n\nLearn more about [OpenSpec](https://github.com/Fission-AI/OpenSpec)",
+        "when": "!openspecWorkspace:initialized"
+      }
+    ],
+    "commands": [
+      {
+        "command": "openspecWorkspace.viewDetails",
+        "title": "OpenSpec Workspace: View Details",
+        "icon": "$(search)"
+      },
+      {
+        "command": "openspecWorkspace.init",
+        "title": "OpenSpec Workspace: Initialize",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "openspecWorkspace.copyChangeName",
+        "title": "OpenSpec Workspace: Copy Change Name",
+        "icon": "$(clippy)"
+      },
+      {
+        "command": "openspecWorkspace.copyChangeCommand.propose",
+        "title": "OpenSpec Workspace: Copy /opsx:propose",
+        "icon": "$(clippy)"
+      },
+      {
+        "command": "openspecWorkspace.copyChangeCommand.apply",
+        "title": "OpenSpec Workspace: Copy /opsx:apply",
+        "icon": "$(clippy)"
+      },
+      {
+        "command": "openspecWorkspace.copyChangeCommand.archive",
+        "title": "OpenSpec Workspace: Copy /opsx:archive",
+        "icon": "$(clippy)"
+      },
+      {
+        "command": "openspecWorkspace.copyChangeCommand.continue",
+        "title": "OpenSpec Workspace: Copy /opsx:continue",
+        "icon": "$(clippy)"
+      },
+      {
+        "command": "openspecWorkspace.copyChangeCommand.ff",
+        "title": "OpenSpec Workspace: Copy /opsx:ff",
+        "icon": "$(clippy)"
+      },
+      {
+        "command": "openspecWorkspace.copyChangeCommand.verify",
+        "title": "OpenSpec Workspace: Copy /opsx:verify",
+        "icon": "$(clippy)"
+      },
+      {
+        "command": "openspecWorkspace.copyChangeCommand.sync",
+        "title": "OpenSpec Workspace: Copy /opsx:sync",
+        "icon": "$(clippy)"
+      },
+      {
+        "command": "openspecWorkspace.generateProposal",
+        "title": "OpenSpec Workspace: Generate Proposal",
+        "icon": "$(add)"
+      },
+      {
+        "command": "openspecWorkspace.showOutput",
+        "title": "OpenSpec Workspace: Show Output",
+        "icon": "$(output)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "openspecWorkspace.generateProposal",
+          "when": "view == openspecWorkspaceExplorer && openspecWorkspace:initialized",
+          "group": "navigation@1"
+        },
+        {
+          "command": "openspecWorkspace.showOutput",
+          "when": "view == openspecWorkspaceExplorer && openspecWorkspace:initialized",
+          "group": "navigation@2"
+        },
+        {
+          "command": "openspecWorkspace.init",
+          "when": "view == openspecWorkspaceWelcome && !openspecWorkspace:initialized",
+          "group": "navigation@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "openspecWorkspace.copyChangeName",
+          "when": "view == openspecWorkspaceExplorer && viewItem == change",
+          "group": "clipboard@1"
+        },
+        {
+          "command": "openspecWorkspace.copyChangeCommand.propose",
+          "when": "view == openspecWorkspaceExplorer && viewItem == change",
+          "group": "clipboard@2"
+        },
+        {
+          "command": "openspecWorkspace.copyChangeCommand.apply",
+          "when": "view == openspecWorkspaceExplorer && viewItem == change",
+          "group": "clipboard@3"
+        },
+        {
+          "command": "openspecWorkspace.copyChangeCommand.archive",
+          "when": "view == openspecWorkspaceExplorer && viewItem == change",
+          "group": "clipboard@4"
+        },
+        {
+          "command": "openspecWorkspace.copyChangeCommand.continue",
+          "when": "view == openspecWorkspaceExplorer && viewItem == change",
+          "group": "clipboard@5"
+        },
+        {
+          "command": "openspecWorkspace.copyChangeCommand.ff",
+          "when": "view == openspecWorkspaceExplorer && viewItem == change",
+          "group": "clipboard@6"
+        },
+        {
+          "command": "openspecWorkspace.copyChangeCommand.verify",
+          "when": "view == openspecWorkspaceExplorer && viewItem == change",
+          "group": "clipboard@7"
+        },
+        {
+          "command": "openspecWorkspace.copyChangeCommand.sync",
+          "when": "view == openspecWorkspaceExplorer && viewItem == change",
+          "group": "clipboard@8"
+        }
+      ]
+    },
+    "keybindings": []
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -w",
+    "pretest": "npm run compile && npm run lint && tsc -p ./tsconfig.test.json",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/test/runTest.js",
+    "test:compile": "tsc -p ./ && npm run test"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/marked": "^5.0.2",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.74.0",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "@vscode/test-electron": "^2.2.2",
+    "eslint": "^8.28.0",
+    "glob": "^8.1.0",
+    "jsdom": "^27.0.1",
+    "mocha": "^10.2.0",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "marked": "^5.0.0"
+  }
+}

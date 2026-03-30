@@ -1,0 +1,28 @@
+.vscode/**
+.vscode-test/**
+src/**
+.gitignore
+.yarnrc
+vsc-extension-quickstart.md
+**/tsconfig.json
+**/tsconfig.test.json
+**/.eslintrc.json
+**/*.map
+**/*.ts
+
+# Development files
+AGENTS.md
+build.sh
+changelog.md
+
+# Test files
+test/**
+out/test/**
+
+# OpenCode internal (not needed in extension package)
+.opencode/**
+
+# GitHub/config files
+.github/**
+.cursor/**
+.cursorrules
