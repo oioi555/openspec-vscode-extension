@@ -56,12 +56,12 @@ export class OpenSpecExplorerProvider implements vscode.TreeDataProvider<TreeIte
 
   getChildren(element?: TreeItemData): Thenable<TreeItemData[]> {
     if (!this._workspaceFolder) {
-      return Promise.resolve([this.getWelcomeItem()]);
+      return Promise.resolve([]);
     }
 
     return WorkspaceUtils.isOpenSpecInitialized(this._workspaceFolder).then(isInitialized => {
       if (!isInitialized) {
-        return [this.getWelcomeItem()];
+        return [];
       }
 
       if (!element) {
@@ -80,15 +80,6 @@ export class OpenSpecExplorerProvider implements vscode.TreeDataProvider<TreeIte
 
       return Promise.resolve([]);
     });
-  }
-
-  private getWelcomeItem(): TreeItemData {
-    return {
-      id: 'welcome',
-      label: 'OpenSpec workspace not detected',
-      type: 'welcome',
-      contextValue: 'welcome'
-    };
   }
 
   private getRootItems(): TreeItemData[] {

@@ -1,7 +1,4 @@
-## Purpose
-Define requirements for discovering and watching OpenSpec content only at the workspace root.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Workspace root OpenSpec discovery
 The extension SHALL treat the workspace-root `openspec/` directory as the only OpenSpec root for discovery, listing, refresh, and welcome-state selection.
@@ -24,10 +21,3 @@ The extension SHALL treat the workspace-root `openspec/` directory as the only O
 - **THEN** the extension keeps the OpenSpec explorer in a welcome state
 - **AND** it does not mark the workspace as initialized
 - **AND** it distinguishes this state from the no-folder case for welcome guidance purposes
-
-### Requirement: Root-only file watching
-The extension SHALL watch for file changes only under the workspace-root `openspec/**` path.
-
-#### Scenario: Change under root openspec updates UI
-- **WHEN** a file is created, changed, or deleted under `openspec/**`
-- **THEN** the extension refreshes the explorer and recomputes initialization state

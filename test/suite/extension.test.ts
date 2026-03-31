@@ -57,6 +57,7 @@ suite('Extension Test Suite', () => {
       contributes?: {
         configuration?: { properties?: Record<string, unknown> };
         views?: Record<string, Array<{ id: string; name: string }>>;
+        viewsWelcome?: Array<{ view: string; contents: string; when?: string }>;
       };
     };
 
@@ -81,5 +82,31 @@ suite('Extension Test Suite', () => {
     const views = packageJSON.contributes?.views?.openspecWorkspace ?? [];
     assert.ok(views.some(view => view.id === 'openspecWorkspaceExplorer'));
     assert.ok(views.some(view => view.id === 'openspecWorkspaceCliTools'));
+    assert.ok(views.some(view => view.id === 'openspecWorkspaceWelcome'));
+
+    const welcomeEntries = (packageJSON.contributes?.viewsWelcome ?? []).filter(
+      viewWelcome => viewWelcome.view === 'openspecWorkspaceWelcome'
+    );
+
+    assert.strictEqual(welcomeEntries.length, 2);
+
+    const noFolderEntry = welcomeEntries.find(
+      viewWelcome => viewWelcome.when?.includes('!openspecWorkspace:hasWorkspaceFolder')
+    );
+    const uninitializedEntry = welcomeEntries.find(
+      viewWelcome =>
+        viewWelcome.when?.includes('openspecWorkspace:hasWorkspaceFolder')
+        && viewWelcome.when.includes('!openspecWorkspace:initialized')
+    );
+
+    assert.ok(noFolderEntry, 'Expected no-folder welcome entry');
+    assert.ok(uninitializedEntry, 'Expected uninitialized-workspace welcome entry');
+    assert.notStrictEqual(noFolderEntry!.when, uninitializedEntry!.when);
+
+    const openSpecRepoUrl = 'https://github.com/Fission-AI/OpenSpec';
+    assert.ok(noFolderEntry!.contents.includes(openSpecRepoUrl));
+    assert.ok(uninitializedEntry!.contents.includes(openSpecRepoUrl));
+    assert.ok(!noFolderEntry!.contents.includes('command:openspecWorkspace.init'));
+    assert.ok(uninitializedEntry!.contents.includes('command:openspecWorkspace.init'));
   });
 });

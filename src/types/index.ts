@@ -26,7 +26,7 @@ export interface OpenSpecProject {
 export interface TreeItemData {
   id: string;
   label: string;
-  type: 'change' | 'spec' | 'folder' | 'welcome' | 'cliCommand' | 'cliHelp';
+  type: 'change' | 'spec' | 'folder' | 'cliCommand' | 'cliHelp';
   path?: string;
   contextValue?: string;
   iconPath?: string;

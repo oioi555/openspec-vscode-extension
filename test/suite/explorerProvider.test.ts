@@ -5,6 +5,7 @@ import { Commands } from '../../src/constants/commands';
 import { OpenSpecCliToolsProvider, OPEN_SPEC_CLI_COMMANDS, OPEN_SPEC_CLI_REFERENCE_URL } from '../../src/providers/cliToolsProvider';
 import { OpenSpecExplorerProvider } from '../../src/providers/explorerProvider';
 import { TreeItemData } from '../../src/types';
+import { WorkspaceUtils } from '../../src/utils/workspace';
 
 suite('Explorer Provider Test Suite', () => {
   let provider: OpenSpecExplorerProvider;
@@ -13,6 +14,62 @@ suite('Explorer Provider Test Suite', () => {
   setup(() => {
     provider = new OpenSpecExplorerProvider();
     cliProvider = new OpenSpecCliToolsProvider();
+  });
+
+  test('Should return an empty array when no workspace folder is available', async () => {
+    (provider as unknown as { _workspaceFolder?: vscode.WorkspaceFolder })._workspaceFolder = undefined;
+
+    const children = await provider.getChildren();
+
+    assert.deepStrictEqual(children, []);
+  });
+
+  test('Should return an empty array when the workspace is not initialized', async () => {
+    const originalIsOpenSpecInitialized = WorkspaceUtils.isOpenSpecInitialized;
+    const workspaceFolder: vscode.WorkspaceFolder = {
+      uri: vscode.Uri.file('/tmp/uninitialized-workspace'),
+      name: 'uninitialized-workspace',
+      index: 0
+    };
+
+    (provider as unknown as { _workspaceFolder?: vscode.WorkspaceFolder })._workspaceFolder = workspaceFolder;
+    (WorkspaceUtils as typeof WorkspaceUtils & {
+      isOpenSpecInitialized: typeof WorkspaceUtils.isOpenSpecInitialized;
+    }).isOpenSpecInitialized = async () => false;
+
+    try {
+      const children = await provider.getChildren();
+
+      assert.deepStrictEqual(children, []);
+    } finally {
+      (WorkspaceUtils as typeof WorkspaceUtils & {
+        isOpenSpecInitialized: typeof WorkspaceUtils.isOpenSpecInitialized;
+      }).isOpenSpecInitialized = originalIsOpenSpecInitialized;
+    }
+  });
+
+  test('Should return root items when the workspace is initialized', async () => {
+    const originalIsOpenSpecInitialized = WorkspaceUtils.isOpenSpecInitialized;
+    const workspaceFolder: vscode.WorkspaceFolder = {
+      uri: vscode.Uri.file('/tmp/initialized-workspace'),
+      name: 'initialized-workspace',
+      index: 0
+    };
+
+    (provider as unknown as { _workspaceFolder?: vscode.WorkspaceFolder })._workspaceFolder = workspaceFolder;
+    (WorkspaceUtils as typeof WorkspaceUtils & {
+      isOpenSpecInitialized: typeof WorkspaceUtils.isOpenSpecInitialized;
+    }).isOpenSpecInitialized = async () => true;
+
+    try {
+      const children = await provider.getChildren();
+
+      assert.deepStrictEqual(children.map(item => item.id), ['changes', 'specs']);
+    } finally {
+      (WorkspaceUtils as typeof WorkspaceUtils & {
+        isOpenSpecInitialized: typeof WorkspaceUtils.isOpenSpecInitialized;
+      }).isOpenSpecInitialized = originalIsOpenSpecInitialized;
+    }
   });
 
   test('Should expose root items in the expected order', () => {

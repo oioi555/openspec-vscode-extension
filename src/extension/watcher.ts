@@ -8,6 +8,11 @@ export function registerOpenSpecWatcher(
   context: vscode.ExtensionContext,
   runtime: ExtensionRuntimeState
 ): void {
+  if (runtime.fileWatcher) {
+    runtime.fileWatcher.dispose();
+    runtime.fileWatcher = undefined;
+  }
+
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
     ErrorHandler.warning('No workspace folder found', false);
@@ -25,8 +30,6 @@ export function registerOpenSpecWatcher(
     runtime.fileWatcher.onDidCreate(() => {
       debounce(runtime, () => {
         WorkspaceUtils.invalidateCache();
-        runtime.explorerProvider?.refresh();
-        runtime.cliToolsProvider?.refresh();
         checkWorkspaceInitialization(runtime);
       }, 500);
     });
@@ -34,16 +37,13 @@ export function registerOpenSpecWatcher(
     runtime.fileWatcher.onDidChange(() => {
       debounce(runtime, () => {
         WorkspaceUtils.invalidateCache();
-        runtime.explorerProvider?.refresh();
-        runtime.cliToolsProvider?.refresh();
+        checkWorkspaceInitialization(runtime);
       }, 500);
     });
 
     runtime.fileWatcher.onDidDelete(() => {
       debounce(runtime, () => {
         WorkspaceUtils.invalidateCache();
-        runtime.explorerProvider?.refresh();
-        runtime.cliToolsProvider?.refresh();
         checkWorkspaceInitialization(runtime);
       }, 500);
     });
@@ -55,9 +55,36 @@ export function registerOpenSpecWatcher(
   }
 }
 
+function updateWelcomeStateContext(
+  runtime: ExtensionRuntimeState,
+  hasWorkspaceFolder: boolean,
+  isInitialized: boolean
+): Promise<void> {
+  const isUninitializedWorkspace = hasWorkspaceFolder && !isInitialized;
+
+  return Promise.all([
+    vscode.commands.executeCommand('setContext', 'openspecWorkspace:hasWorkspaceFolder', hasWorkspaceFolder),
+    vscode.commands.executeCommand('setContext', 'openspecWorkspace:initialized', isInitialized),
+    vscode.commands.executeCommand('setContext', 'openspecWorkspace:uninitialized', isUninitializedWorkspace)
+  ])
+    .then(() => {
+      runtime.explorerProvider?.refresh();
+      runtime.cliToolsProvider?.refresh();
+      ErrorHandler.info(
+        `Workspace welcome state updated: hasWorkspaceFolder=${hasWorkspaceFolder}, initialized=${isInitialized}`,
+        false
+      );
+    });
+}
+
 export function checkWorkspaceInitialization(runtime: ExtensionRuntimeState): void {
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
+    updateWelcomeStateContext(runtime, false, false)
+      .catch(error => {
+        ErrorHandler.handle(error as Error, 'Failed to update welcome state for missing workspace');
+      });
+
     ErrorHandler.warning('No workspace folder found', false);
     return;
   }
@@ -66,10 +93,7 @@ export function checkWorkspaceInitialization(runtime: ExtensionRuntimeState): vo
 
   WorkspaceUtils.isOpenSpecInitialized(workspaceFolder)
     .then(isInitialized => {
-      vscode.commands.executeCommand('setContext', 'openspecWorkspace:initialized', isInitialized);
-      runtime.explorerProvider?.refresh();
-      runtime.cliToolsProvider?.refresh();
-      ErrorHandler.info(`Workspace initialization status: ${isInitialized}`, false);
+      return updateWelcomeStateContext(runtime, true, isInitialized);
     })
     .catch(error => {
       ErrorHandler.handle(error as Error, 'Failed to check workspace initialization');

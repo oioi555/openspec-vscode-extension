@@ -12,6 +12,13 @@ import { ExtensionRuntimeState } from './runtime';
 import { checkWorkspaceInitialization } from './watcher';
 
 const OPEN_SPEC_CLI_TERMINAL_NAME = 'OpenSpec CLI';
+const OPEN_SPEC_INIT_FOLLOW_UP_DELAY_MS = 700;
+
+async function delay(ms: number): Promise<void> {
+  await new Promise<void>(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
@@ -189,10 +196,11 @@ export function registerCommands(context: vscode.ExtensionContext, runtime: Exte
   const copyChangeCommandSync = registerCommandSnippetCopy(Commands.copyChangeCommandSync, 'sync');
 
   const initCommand = vscode.commands.registerCommand(Commands.init, async () => {
-    const terminal = vscode.window.createTerminal({ name: 'OpenSpec Workspace Init' });
-    terminal.show(true);
+    const terminal = getOrCreateTerminal(OPEN_SPEC_CLI_TERMINAL_NAME);
+    terminal.show(false);
     terminal.sendText('openspec init', true);
-    vscode.window.showInformationMessage('Initialized terminal with `openspec init`');
+    await delay(OPEN_SPEC_INIT_FOLLOW_UP_DELAY_MS);
+    terminal.sendText('', true);
   });
 
   const runCliToolCommand = vscode.commands.registerCommand(Commands.runCliTool, (item) => {

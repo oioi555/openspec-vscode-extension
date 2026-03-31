@@ -112,8 +112,13 @@
     "viewsWelcome": [
       {
         "view": "openspecWorkspaceWelcome",
-        "contents": "OpenSpec workspace not detected\n[Initialize OpenSpec](command:openspecWorkspace.init)\n\nLearn more about [OpenSpec](https://github.com/Fission-AI/OpenSpec)",
-        "when": "!openspecWorkspace:initialized"
+        "contents": "Open a folder to start using OpenSpec.\n\nLearn more about [OpenSpec](https://github.com/Fission-AI/OpenSpec)",
+        "when": "!openspecWorkspace:hasWorkspaceFolder"
+      },
+      {
+        "view": "openspecWorkspaceWelcome",
+        "contents": "OpenSpec is not initialized in this workspace.\n[Initialize OpenSpec](command:openspecWorkspace.init)\n\nLearn more about [OpenSpec](https://github.com/Fission-AI/OpenSpec)",
+        "when": "openspecWorkspace:hasWorkspaceFolder && !openspecWorkspace:initialized"
       }
     ],
     "commands": [
@@ -217,7 +222,7 @@
         },
         {
           "command": "openspecWorkspace.init",
-          "when": "view == openspecWorkspaceWelcome && !openspecWorkspace:initialized",
+          "when": "view == openspecWorkspaceWelcome && openspecWorkspace:hasWorkspaceFolder && !openspecWorkspace:initialized",
           "group": "navigation@1"
         }
       ],

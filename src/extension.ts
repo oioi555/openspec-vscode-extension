@@ -9,6 +9,7 @@ import {
 } from './utils/config';
 import { ErrorHandler } from './utils/errorHandler';
 import { CacheManager } from './utils/cache';
+import { WorkspaceUtils } from './utils/workspace';
 
 import { activateExtension } from './extension/activate';
 import { deactivateExtension } from './extension/deactivate';
@@ -48,19 +49,25 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   refreshConfigurationContext();
+
+  const refreshWorkspaceState = () => {
+    WorkspaceUtils.invalidateCache();
+    registerOpenSpecWatcher(context, runtime!);
+    checkWorkspaceInitialization(runtime!);
+  };
+
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(event => {
       if (isOpenSpecConfigurationChange(event)) {
         refreshConfigurationContext();
       }
+    }),
+    vscode.workspace.onDidChangeWorkspaceFolders(() => {
+      refreshWorkspaceState();
     })
   );
 
-  // Set up file system watcher
-  registerOpenSpecWatcher(context, runtime);
-
-  // Check workspace initialization
-  checkWorkspaceInitialization(runtime);
+  refreshWorkspaceState();
 
   // Log activation success
   ErrorHandler.info('Extension activated successfully', false);
