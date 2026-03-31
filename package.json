@@ -2,7 +2,7 @@
   "name": "openspec-workspace",
   "displayName": "OpenSpec Workspace",
   "description": "VS Code extension for OpenSpec spec-driven development workflow",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "publisher": "oioi555",
   "icon": "media/icon.png",
   "repository": {
